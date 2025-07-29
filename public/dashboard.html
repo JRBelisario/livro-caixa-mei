@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeiro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Dashboard Financeiro</h1>
+        <nav>
+            <a href="index.html" class="btn btn-secondary">Voltar para Lançamentos</a>
+        </nav>
+    </header>
+
+    <main class="container dashboard-container">
+        <section class="summary-section card">
+            <h2>Resumo Financeiro</h2>
+            <div class="summary-items">
+                <p><strong>Total de Receitas:</strong> <span id="totalReceita" class="value-income">R$ 0,00</span></p>
+                <p><strong>Total de Despesas:</strong> <span id="totalDespesa" class="value-expense">R$ 0,00</span></p>
+                <p><strong>Saldo Atual:</strong> <span id="saldoAtual">R$ 0,00</span></p>
+            </div>
+        </section>
+
+        <section class="reports-section card">
+            <h2>Gerar Relatórios</h2>
+            <div class="report-buttons">
+                <button id="generateCsvReport" class="btn btn-primary">Gerar CSV</button>
+                <button id="generatePdfReport" class="btn btn-primary">Gerar PDF</button>
+            </div>
+            <div id="reportStatusMessage" class="message" style="display: none;"></div>
+        </section>
+
+        <section class="chart-section card">
+            <h2>Gráfico de Lançamentos por Categoria (Últimos 30 Dias)</h2>
+            <div class="chart-container-wrapper">
+                <canvas id="graficoLancamentos"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

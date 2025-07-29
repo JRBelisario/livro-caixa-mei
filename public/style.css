@@ -1,0 +1,479 @@
+/* style.css */
+
+/* Importa a fonte Inter do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4F46E5; /* Indigo 600 */
+    --primary-dark-color: #4338CA; /* Indigo 700 */
+    --secondary-color: #6B7280; /* Gray 500 */
+    --background-color: #F3F4F6; /* Gray 100 */
+    --card-background: #FFFFFF;
+    --text-color: #1F2937; /* Gray 900 */
+    --light-text-color: #6B7280; /* Gray 500 */
+    --border-color: #E5E7EB; /* Gray 200 */
+    --success-color: #10B981; /* Green 500 */
+    --danger-color: #EF4444; /* Red 500 */
+    --shadow-color: rgba(0, 0, 0, 0.05);
+    --table-header-bg: #E0E7FF; /* Light Indigo */
+    --table-row-even-bg: #F9FAFB; /* Light Gray */
+    --table-row-odd-bg: #FFFFFF;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+header {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.25rem; /* 36px */
+    font-weight: 700;
+}
+
+header nav {
+    margin-top: 0.5rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: 1fr; /* Default for mobile */
+}
+
+/* Specific layout for index.html (main-transactions-container) */
+.main-transactions-container {
+    grid-template-columns: 1fr; /* Default for mobile */
+}
+
+@media (min-width: 768px) {
+    .main-transactions-container {
+        grid-template-columns: 1fr; /* Still single column for transactions on tablet, but form can be wider */
+    }
+    .main-transactions-container .form-section {
+        grid-column: span 1; /* Occupy one column */
+    }
+    .main-transactions-container .transactions-section {
+        grid-column: span 1; /* Occupy one column */
+    }
+}
+
+@media (min-width: 1024px) {
+    .main-transactions-container {
+        grid-template-columns: 1fr 2fr; /* Form on left (1 part), Transactions on right (2 parts) */
+    }
+    .main-transactions-container .form-section {
+        grid-column: span 1;
+    }
+    .main-transactions-container .transactions-section {
+        grid-column: span 1; /* Now occupies its own column */
+    }
+}
+
+
+/* Specific layout for dashboard.html */
+.dashboard-container {
+    grid-template-columns: 1fr; /* Default for mobile */
+}
+
+@media (min-width: 768px) {
+    .dashboard-container {
+        grid-template-columns: 1fr 1fr; /* Two columns for tablets */
+    }
+    .dashboard-container .summary-section {
+        grid-column: span 1;
+    }
+    .dashboard-container .reports-section {
+        grid-column: span 1;
+    }
+    .dashboard-container .chart-section {
+        grid-column: span 2; /* Chart takes full width below */
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-container {
+        grid-template-columns: 1fr 1fr; /* Two columns for desktops */
+    }
+    .dashboard-container .summary-section {
+        grid-column: span 1;
+    }
+    .dashboard-container .reports-section {
+        grid-column: span 1;
+    }
+    .dashboard-container .chart-section {
+        grid-column: span 2; /* Chart takes full width below */
+    }
+}
+
+
+.card {
+    background-color: var(--card-background);
+    padding: 1.5rem;
+    border-radius: 0.75rem; /* 12px */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.card h2 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: var(--primary-dark-color);
+    margin-top: 0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--light-text-color);
+    font-size: 0.875rem; /* 14px */
+}
+
+.form-group input[type="date"],
+.form-group input[type="text"],
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem; /* 8px */
+    font-size: 1rem;
+    color: var(--text-color);
+    background-color: #F9FAFB; /* Gray 50 */
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-sizing: border-box; /* Ensures padding doesn't increase width */
+}
+
+.form-group input[type="date"]:focus,
+.form-group input[type="text"]:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); /* primary-color with opacity */
+}
+
+.form-group select:disabled {
+    background-color: #E5E7EB; /* Gray 200 */
+    cursor: not-allowed;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border: none;
+    border-radius: 0.5rem; /* 8px */
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    text-decoration: none; /* For anchor tags */
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark-color);
+    transform: translateY(-1px);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: #FFFFFF;
+}
+
+.btn-secondary:hover {
+    background-color: #4B5563; /* Gray 700 */
+    transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+.message {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+.message.success {
+    background-color: #D1FAE5; /* Green 100 */
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.message.error {
+    background-color: #FEE2E2; /* Red 100 */
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+/* Summary Section */
+.summary-items p {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 1.1rem;
+}
+
+.summary-items p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-dark-color);
+}
+
+.summary-items p strong {
+    color: var(--text-color);
+}
+
+.value-income {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.value-expense {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+#saldoAtual {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Reports Section */
+.reports-section .report-buttons {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 1rem;
+    justify-content: center; /* Center buttons */
+    margin-top: 1rem;
+}
+
+/* Transactions Table - Excel-like appearance */
+.transactions-table-wrapper {
+    margin-top: 1rem;
+    overflow-x: auto; /* Enable horizontal scroll for small screens */
+    max-height: 500px; /* Limit height for scrollability */
+    overflow-y: auto; /* Enable vertical scroll */
+    border: 1px solid var(--border-color); /* Border around the wrapper */
+    border-radius: 0.5rem;
+}
+
+.transactions-table {
+    width: 100%;
+    border-collapse: collapse; /* Remove space between cells */
+    font-size: 0.9rem;
+    min-width: 700px; /* Ensure table doesn't shrink too much */
+}
+
+.transactions-table thead {
+    background-color: var(--table-header-bg);
+    color: var(--primary-dark-color);
+    position: sticky; /* Make header sticky when scrolling vertically */
+    top: 0;
+    z-index: 10; /* Ensure header is above rows */
+}
+
+.transactions-table th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    white-space: nowrap; /* Prevent headers from wrapping */
+}
+
+.transactions-table tbody tr {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.transactions-table tbody tr:nth-child(even) {
+    background-color: var(--table-row-even-bg);
+}
+
+.transactions-table tbody tr:nth-child(odd) {
+    background-color: var(--table-row-odd-bg);
+}
+
+.transactions-table tbody tr:hover {
+    background-color: #EBF4FF; /* Light blue on hover */
+}
+
+.transactions-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap; /* Prevent content from wrapping */
+    overflow: hidden; /* Hide overflow content */
+    text-overflow: ellipsis; /* Add ellipsis for overflow */
+    max-width: 150px; /* Limit width for description */
+}
+
+.transactions-table td:nth-child(2) { /* Description column */
+    max-width: 200px; /* Allow more space for description */
+    width: 25%;
+}
+
+.transactions-table td.value-income {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.transactions-table td.value-expense {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+.transactions-table .transaction-actions-cell {
+    text-align: center;
+    width: 80px; /* Fixed width for action buttons */
+}
+
+.transactions-table .transaction-actions {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+}
+
+.transactions-table .transaction-actions button {
+    padding: 0.3rem; /* Smaller padding for table buttons */
+}
+
+/* Chart Section */
+.chart-section .chart-container-wrapper {
+    position: relative;
+    width: 100%;
+    /* Max height for a more minimalist chart */
+    max-height: 350px; /* Adjust as needed for desired height */
+    margin: 0 auto; /* Center the chart */
+}
+
+.chart-section canvas {
+    width: 100% !important; /* Override Chart.js inline styles */
+    height: 100% !important; /* Override Chart.js inline styles */
+    display: block; /* Ensure it behaves as a block element */
+}
+
+
+/* Modal for confirmation/messages */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background-color: var(--card-background);
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.modal-overlay.active .modal-content {
+    transform: translateY(0);
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: var(--primary-dark-color);
+    margin-bottom: 1rem;
+}
+
+.modal-content p {
+    font-size: 1rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.modal-actions .btn {
+    padding: 0.75rem 1.25rem;
+    min-width: 100px;
+}
+
+.modal-actions .btn-cancel {
+    background-color: var(--secondary-color);
+    color: #FFFFFF;
+}
+
+.modal-actions .btn-cancel:hover {
+    background-color: #4B5563; /* Gray 700 */
+}
+
+.modal-actions .btn-confirm {
+    background-color: var(--danger-color);
+    color: #FFFFFF;
+}
+
+.modal-actions .btn-confirm:hover {
+    background-color: #DC2626; /* Red 600 */
+}
