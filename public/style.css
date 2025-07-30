@@ -18,6 +18,7 @@
     --table-header-bg: #E0E7FF; /* Light Indigo */
     --table-row-even-bg: #F9FAFB; /* Light Gray */
     --table-row-odd-bg: #FFFFFF;
+    --hero-background-light: #E0F2FE; /* Light blue for hero section */
 }
 
 body {
@@ -31,6 +32,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Base Header Style (for all pages) */
 header {
     background-color: var(--primary-color);
     color: #FFFFFF;
@@ -62,20 +64,20 @@ header nav {
     grid-template-columns: 1fr; /* Default for mobile */
 }
 
-/* Specific layout for index.html (main-transactions-container) */
+/* Specific layout for transactions.html (main-transactions-container) */
 .main-transactions-container {
     grid-template-columns: 1fr; /* Default for mobile */
 }
 
 @media (min-width: 768px) {
     .main-transactions-container {
-        grid-template-columns: 1fr; /* Still single column for transactions on tablet, but form can be wider */
+        grid-template-columns: 1fr; 
     }
     .main-transactions-container .form-section {
-        grid-column: span 1; /* Occupy one column */
+        grid-column: span 1; 
     }
     .main-transactions-container .transactions-section {
-        grid-column: span 1; /* Occupy one column */
+        grid-column: span 1; 
     }
 }
 
@@ -87,7 +89,7 @@ header nav {
         grid-column: span 1;
     }
     .main-transactions-container .transactions-section {
-        grid-column: span 1; /* Now occupies its own column */
+        grid-column: span 1; 
     }
 }
 
@@ -159,6 +161,8 @@ header nav {
 }
 
 .form-group input[type="date"],
+.form-group input[type="email"], /* Added for auth pages */
+.form-group input[type="password"], /* Added for auth pages */
 .form-group input[type="text"],
 .form-group select {
     width: 100%;
@@ -173,6 +177,8 @@ header nav {
 }
 
 .form-group input[type="date"]:focus,
+.form-group input[type="email"]:focus,
+.form-group input[type="password"]:focus,
 .form-group input[type="text"]:focus,
 .form-group select:focus {
     outline: none;
@@ -194,18 +200,20 @@ header nav {
     border: none;
     border-radius: 0.5rem; /* 8px */
     cursor: pointer;
-    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
     text-decoration: none; /* For anchor tags */
 }
 
 .btn-primary {
     background-color: var(--primary-color);
     color: #FFFFFF;
+    box-shadow: 0 4px 6px rgba(79, 70, 229, 0.2); /* Stronger shadow */
 }
 
 .btn-primary:hover {
     background-color: var(--primary-dark-color);
     transform: translateY(-1px);
+    box-shadow: 0 6px 8px rgba(79, 70, 229, 0.3);
 }
 
 .btn-primary:active {
@@ -213,17 +221,26 @@ header nav {
 }
 
 .btn-secondary {
-    background-color: var(--secondary-color);
-    color: #FFFFFF;
+    background-color: var(--card-background); /* White background */
+    color: var(--primary-color); /* Primary text color */
+    border: 2px solid var(--primary-color); /* Primary border color */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary:hover {
-    background-color: #4B5563; /* Gray 700 */
+    background-color: var(--primary-color); /* Invert colors on hover */
+    color: #FFFFFF;
     transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary:active {
     transform: translateY(0);
+}
+
+.btn-lg { /* For larger buttons on landing page */
+    padding: 1rem 2rem;
+    font-size: 1.125rem; /* 18px */
 }
 
 .message {
@@ -476,4 +493,284 @@ header nav {
 
 .modal-actions .btn-confirm:hover {
     background-color: #DC2626; /* Red 600 */
+}
+
+
+/* --- NEW: Landing Page Styles --- */
+.landing-page-body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.landing-header {
+    background-color: var(--primary-color);
+    color: #FFFFFF;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.landing-header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 1rem;
+}
+
+.landing-logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.landing-nav {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.landing-nav .nav-link {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.landing-nav .nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+.hero-section {
+    /* Changed background to be lighter and less blue */
+    background-color: var(--hero-background-light); /* Light blue background */
+    color: var(--text-color); /* Dark text for contrast */
+    padding: 4rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .hero-section {
+        flex-direction: row;
+        text-align: left;
+        padding: 6rem 2rem;
+    }
+    .hero-content {
+        flex: 1;
+        max-width: 600px;
+        text-align: left;
+    }
+    .hero-image-container {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}
+
+.hero-section h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    color: var(--primary-dark-color); /* Ensure heading is prominent */
+}
+
+.hero-section p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    color: var(--text-color); /* Ensure body text is readable */
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+@media (min-width: 768px) {
+    .hero-actions {
+        justify-content: flex-start;
+    }
+}
+
+.hero-image-container {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 2rem;
+}
+
+.hero-image {
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.features-section {
+    padding: 4rem 1rem;
+    background-color: var(--card-background);
+    text-align: center;
+}
+
+.features-section h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-dark-color);
+    margin-bottom: 3rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .features-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.feature-item {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.feature-item h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.75rem;
+}
+
+.feature-item p {
+    font-size: 0.95rem;
+    color: var(--light-text-color);
+}
+
+.about-section {
+    padding: 4rem 1rem;
+    background-color: var(--background-color);
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.about-section h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-dark-color);
+    margin-bottom: 1.5rem;
+}
+
+.about-section p {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    color: var(--light-text-color);
+}
+
+.cta-section {
+    background: linear-gradient(to bottom right, var(--primary-dark-color), #3730A3); /* Even darker indigo */
+    color: #FFFFFF;
+    padding: 4rem 1rem;
+    text-align: center;
+}
+
+.cta-section h3 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.cta-section p {
+    font-size: 1.125rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.landing-footer {
+    background-color: var(--text-color); /* Dark gray footer */
+    color: #FFFFFF;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-top: auto; /* Push footer to bottom */
+}
+
+/* --- NEW: Auth Page Styles --- */
+.auth-page-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+}
+
+.auth-container {
+    max-width: 450px;
+    width: 90%;
+    padding: 2rem;
+    text-align: center;
+}
+
+.auth-container h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-dark-color);
+    border-bottom: none; /* Remove border from card h2 */
+    padding-bottom: 0;
+}
+
+.auth-container .btn-primary {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.auth-link-text {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--light-text-color);
+}
+
+.auth-link-text a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-link-text a:hover {
+    text-decoration: underline;
 }

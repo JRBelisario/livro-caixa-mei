@@ -3,68 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Sistema Financeiro Pessoal</title>
+    <title>Livro Caixa MEI - Seu Controle Financeiro Simplificado</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <header>
-        <h1>Sistema Financeiro Pessoal</h1>
-        <nav>
-            <a href="dashboard.html" class="btn btn-secondary">Ver Dashboard</a>
-        </nav>
+<body class="landing-page-body">
+    <header class="landing-header">
+        <div class="landing-header-content">
+            <h1 class="landing-logo">Livro Caixa MEI</h1>
+            <nav class="landing-nav">
+                <a href="#features" class="nav-link">Funcionalidades</a>
+                <a href="#about" class="nav-link">Sobre</a>
+                <a href="#contact" class="nav-link">Contato</a>
+                <a href="login.html" class="btn btn-primary">Entrar</a>
+                <a href="register.html" class="btn btn-secondary">Registrar</a>
+            </nav>
+        </div>
     </header>
 
-    <main class="container main-transactions-container">
-        <section class="form-section card">
-            <h2>Novo Lançamento</h2>
-            <form id="lancamentoForm">
-                <div class="form-group">
-                    <label for="data">Data:</label>
-                    <input type="date" id="data" required>
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2>Organize suas finanças de MEI de forma simples e eficiente.</h2>
+                <p>O Livro Caixa MEI é a ferramenta perfeita para microempreendedores individuais que buscam clareza e controle total sobre suas receitas e despesas.</p>
+                <div class="hero-actions">
+                    <a href="register.html" class="btn btn-primary btn-lg">Comece Grátis Agora!</a>
+                    <a href="login.html" class="btn btn-secondary btn-lg">Já sou cliente</a>
                 </div>
-                <div class="form-group">
-                    <label for="descricao">Descrição:</label>
-                    <input type="text" id="descricao" placeholder="Ex: Conta de Luz" required>
-                </div>
-                <div class="form-group">
-                    <label for="tipoLancamento">Tipo:</label>
-                    <select id="tipoLancamento" required>
-                        <option value="">Selecione...</option>
-                        <option value="receita">Receita</option>
-                        <option value="despesa">Despesa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="categoria">Categoria:</label>
-                    <select id="categoria" required disabled>
-                        <option value="">Selecione um tipo primeiro...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="tipoPagamento">Meio de Pagamento:</label>
-                    <select id="tipoPagamento" required disabled>
-                        <option value="">Carregando...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="valor">Valor:</label>
-                    <input type="text" id="valor" placeholder="Ex: 1500,50" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Adicionar Lançamento</button>
-            </form>
-            <div id="statusMessage" class="message"></div>
+            </div>
+            <div class="hero-image-container">
+                <img src="https://placehold.co/600x400/808080/FFFFFF?text=Dashboard+Livro+Caixa" alt="Dashboard do Livro Caixa MEI" class="hero-image">
+            </div>
         </section>
 
-        <section class="transactions-section card">
-            <h2>Últimos Lançamentos</h2>
-            <div id="transactionsTableWrapper" class="transactions-table-wrapper">
-                <!-- A tabela será inserida aqui pelo JavaScript -->
-                <p class="no-transactions-message">Nenhum lançamento registrado ainda.</p>
+        <section id="features" class="features-section">
+            <h3>Funcionalidades que simplificam seu dia a dia</h3>
+            <div class="features-grid">
+                <div class="feature-item card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Controle de Lançamentos</h4>
+                    <p>Registre suas receitas e despesas de forma rápida e intuitiva, com categorias personalizáveis.</p>
+                </div>
+                <div class="feature-item card">
+                    <div class="feature-icon">📈</div>
+                    <h4>Dashboard Visual</h4>
+                    <p>Visualize seu fluxo de caixa com gráficos claros e resumos financeiros em tempo real.</p>
+                </div>
+                <div class="feature-item card">
+                    <div class="feature-icon">📄</div>
+                    <h4>Relatórios Essenciais</h4>
+                    <p>Gere relatórios em CSV e PDF para facilitar sua contabilidade e organização fiscal.</p>
+                </div>
+                <div class="feature-item card">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Segurança e Privacidade</h4>
+                    <p>Seus dados financeiros protegidos com as melhores práticas de segurança.</p>
+                </div>
             </div>
+        </section>
+
+        <section id="about" class="about-section">
+            <h3>Nosso Objetivo</h3>
+            <p>Acreditamos que todo MEI merece ter controle financeiro sem complicações. O Livro Caixa MEI foi desenvolvido para ser uma ferramenta acessível, intuitiva e poderosa, ajudando você a focar no que realmente importa: o crescimento do seu negócio.</p>
+            <p>Simplificamos a gestão financeira para que você possa tomar decisões mais informadas e ter tranquilidade sobre suas obrigações.</p>
+        </section>
+
+        <section id="contact" class="cta-section">
+            <h3>Pronto para organizar suas finanças?</h3>
+            <p>Junte-se a centenas de MEIs que já transformaram sua gestão financeira.</p>
+            <a href="register.html" class="btn btn-primary btn-lg">Comece Agora!</a>
         </section>
     </main>
 
-    <script src="script.js"></script>
+    <footer class="landing-footer">
+        <p>&copy; 2024 Livro Caixa MEI. Todos os direitos reservados.</p>
+    </footer>
 </body>
 </html>
-

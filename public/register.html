@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Livro Caixa MEI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-page-body">
+    <div class="auth-container card">
+        <h2>Criar sua Conta Grátis</h2>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Senha:</label>
+                <input type="password" id="confirmPassword" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar</button>
+        </form>
+        <div id="statusMessage" class="message"></div>
+        <p class="auth-link-text">Já tem uma conta? <a href="login.html">Faça login aqui</a></p>
+        <p class="auth-link-text"><a href="index.html">Voltar para a página inicial</a></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

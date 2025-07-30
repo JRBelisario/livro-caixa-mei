@@ -1,12 +1,16 @@
-// script.js (Updated for Multi-Page Navigation and Reports - Excel-like table)
+// script.js (Updated for Multi-Page Navigation and Authentication Frontend)
 
 // DOM Elements (conditionally selected based on page)
 let lancamentoForm, dataInput, descricaoInput, tipoLancamentoSelect, categoriaSelect, tipoPagamentoSelect, valorInput;
-let statusMessage;
+let statusMessage; // Used on transactions, login, register pages
 let totalReceitaSpan, totalDespesaSpan, saldoAtualSpan;
-let transactionsTableWrapper, noTransactionsMessage; // Changed from transactionsList
+let transactionsTableWrapper, noTransactionsMessage;
 let ctx, lancamentosChart;
 let generateCsvButton, generatePdfButton, reportStatusMessage;
+
+// Auth Page elements
+let loginForm, registerForm;
+let emailInput, passwordInput, confirmPasswordInput;
 
 // Global variables to store dynamic options fetched from backend
 let categoriasBackend = { receita: [], despesa: [] };
@@ -40,11 +44,10 @@ async function fetchConfigurations() {
             categoriasBackend.despesa = data.expense.map(name => ({ value: name, label: name }));
             tiposPagamentoBackend = data.payments.map(name => ({ value: name, label: name }));
             
-            // Populate payment types if the select element exists on the current page
+            // Populate selects if they exist on the current page
             if (tipoPagamentoSelect) {
                 populateSelect(tipoPagamentoSelect, tiposPagamentoBackend, 'Selecione um meio de pagamento...');
             }
-            // Also populate editTipoPagamentoSelect if it exists (for the modal)
             if (editTipoPagamentoSelect) {
                 populateSelect(editTipoPagamentoSelect, tiposPagamentoBackend, 'Selecione um meio de pagamento...');
             }
@@ -53,7 +56,10 @@ async function fetchConfigurations() {
         }
     } catch (error) {
         console.error("Erro ao buscar configurações:", error);
-        showStatusMessage("Erro ao carregar configurações. Verifique o servidor.", "error");
+        // Only show status message if on a page where it's relevant (e.g., transactions page)
+        if (window.location.pathname.includes('transactions.html')) {
+            showStatusMessage("Erro ao carregar configurações. Verifique o servidor.", "error");
+        }
     }
 }
 
@@ -70,8 +76,8 @@ function populateSelect(selectElement, options, defaultOptionLabel) {
     selectElement.disabled = false;
 }
 
-// --- Form Submission Handler (only for index.html) ---
-function setupIndexPageListeners() {
+// --- Transactions Page Listeners (for transactions.html) ---
+function setupTransactionsPageListeners() {
     lancamentoForm = document.getElementById('lancamentoForm');
     dataInput = document.getElementById('data');
     descricaoInput = document.getElementById('descricao');
@@ -79,9 +85,9 @@ function setupIndexPageListeners() {
     categoriaSelect = document.getElementById('categoria');
     tipoPagamentoSelect = document.getElementById('tipoPagamento');
     valorInput = document.getElementById('valor');
-    statusMessage = document.getElementById('statusMessage');
-    transactionsTableWrapper = document.getElementById('transactionsTableWrapper'); // Changed
-    noTransactionsMessage = transactionsTableWrapper ? transactionsTableWrapper.querySelector('.no-transactions-message') : null; // Changed
+    statusMessage = document.getElementById('statusMessage'); // Status for form submissions
+    transactionsTableWrapper = document.getElementById('transactionsTableWrapper');
+    noTransactionsMessage = transactionsTableWrapper ? transactionsTableWrapper.querySelector('.no-transactions-message') : null;
 
     if (lancamentoForm) {
         lancamentoForm.addEventListener('submit', async (e) => {
@@ -120,7 +126,7 @@ function setupIndexPageListeners() {
                     showStatusMessage("Lançamento adicionado com sucesso!", "success");
                     lancamentoForm.reset(); // Clear form
                     dataInput.value = ''; // Ensure date input is cleared
-                    if (categoriaSelect) { // Check if element exists before accessing
+                    if (categoriaSelect) {
                         categoriaSelect.innerHTML = '<option value="">Selecione um tipo primeiro...</option>';
                         categoriaSelect.disabled = true;
                     }
@@ -128,14 +134,12 @@ function setupIndexPageListeners() {
                 } else {
                     showStatusMessage("Erro ao adicionar lançamento: " + result.message, "error");
                 }
-            }
-            catch (e) {
+            } catch (e) {
                 console.error("Erro ao adicionar lançamento:", e);
                 showStatusMessage("Erro de comunicação com o servidor. Tente novamente.", "error");
             }
         });
 
-        // Event listener for Tipo de Lançamento change on index.html
         tipoLancamentoSelect.addEventListener('change', () => {
             const selectedType = tipoLancamentoSelect.value;
             if (selectedType === 'receita') {
@@ -151,7 +155,7 @@ function setupIndexPageListeners() {
         // Set today's date as default for the date input
         const today = new Date();
         const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // Months start at 0!
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');
         dataInput.value = `${yyyy}-${mm}-${dd}`;
 
@@ -159,9 +163,9 @@ function setupIndexPageListeners() {
     }
 }
 
-// --- Fetch and Display Transactions (only for index.html) ---
+// --- Fetch and Display Transactions (for transactions.html) ---
 async function fetchAndDisplayTransactions() {
-    if (!transactionsTableWrapper) return; // Only run if on index.html
+    if (!transactionsTableWrapper) return;
 
     try {
         const response = await fetch('/api/lancamentos');
@@ -225,7 +229,7 @@ async function fetchAndDisplayTransactions() {
                         </button>
                         <button class="delete-btn" title="Excluir Lançamento">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
-                                <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 0 1 .75.75v2.25c0 .243-.16.46-.385.568A42.603 42.603 0 0 1 12 10.5c-2.842 0-5.455-.221-7.96-.609a.75.75 0 0 1-.385-.568V6a.75.75 0 0 1 .75-.75 48.855 48.855 0 0 1 3.878-.512V4.478c0-1.564 1.213-2.9 2.816-2.953Q12 1.5 12 1.5t-.008.004c1.603.053 2.816 1.389 2.816 2.953Zm-6.161 7.132a.75.75 0 0 1 0 1.06L9.439 14.25l1.06 1.06a.75.75 0 1 1-1.06 1.06l-1.06-1.06-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06-1.06-1.06a.75.75 0 0 1 1.06-1.06l1.06 1.06 1.06-1.06a.75.75 0 0 1 1.06 0Zm6.336 0a.75.75 0 0 1 0 1.06L15.439 14.25l1.06 1.06a.75.75 0 1 1-1.06 1.06l-1.06-1.06-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06-1.06-1.06a.75.75 0 0 1 1.06-1.06l1.06 1.06 1.06-1.06a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
+                                <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 0 1 .75.75v2.25c0 .243-.16.46-.385.568A42.603 42.603 0 0 1 12 10.5c-2.842 0-5.455-.221-7.96-.609a.75.75 0 0 1-.385-.568V6a.75.75 0 0 1 .75-.75 48.855 48.855 0 0 1 3.878-.512V4.478c0-1.564 1.213-2.9 2.816-2.953Q12 1.5 12 1.5t-.008.004c1.603.053 2.816 1.389 2.816 2.953Zm-6.161 7.132a.75.75 0 0 1 0 1.06L9.439 14.25l1.06 1.06a.75.75 0 1 1-1.06 1.06l-1.06-1.06-1.06 1.06a.75.75 0 1 1-1.06-1.06l1.06-1.06-1.06-1.06a.75.75 0 0 1 1.06-1.06l1.06 1.06 1.06-1.06a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd" />
                             </svg>
                         </button>
                     </div>
@@ -260,7 +264,7 @@ async function fetchAndDisplayTransactions() {
     }
 }
 
-// --- Fetch and Display Dashboard Data (only for dashboard.html) ---
+// --- Dashboard Page Listeners (for dashboard.html) ---
 function setupDashboardPageListeners() {
     totalReceitaSpan = document.getElementById('totalReceita');
     totalDespesaSpan = document.getElementById('totalDespesa');
@@ -270,10 +274,9 @@ function setupDashboardPageListeners() {
     generatePdfButton = document.getElementById('generatePdfReport');
     reportStatusMessage = document.getElementById('reportStatusMessage');
 
-    if (totalReceitaSpan && ctx) { // Only run if on dashboard.html
-        fetchAndDisplayDashboardData(); // Initial load of dashboard data
+    if (totalReceitaSpan && ctx) {
+        fetchAndDisplayDashboardData();
 
-        // Add event listeners for report generation buttons
         if (generateCsvButton) {
             generateCsvButton.addEventListener('click', () => {
                 console.log("[Frontend Debug] Botão 'Gerar CSV' clicado.");
@@ -291,7 +294,6 @@ function setupDashboardPageListeners() {
 
 async function fetchAndDisplayDashboardData() {
     try {
-        // Fetch summary data
         const summaryResponse = await fetch('/api/resumo-financeiro');
         if (!summaryResponse.ok) throw new Error(`HTTP error! status: ${summaryResponse.status}`);
         const summaryResult = await summaryResponse.json();
@@ -301,7 +303,6 @@ async function fetchAndDisplayDashboardData() {
             console.error("Erro ao carregar resumo: " + summaryResult.message);
         }
 
-        // Fetch chart data
         const chartDataResponse = await fetch('/api/dados-grafico');
         if (!chartDataResponse.ok) throw new Error(`HTTP error! status: ${chartDataResponse.status}`);
         const chartData = await chartDataResponse.json();
@@ -317,7 +318,6 @@ function updateSummary(summaryData) {
     totalDespesaSpan.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(summaryData.totalDespesa);
     saldoAtualSpan.textContent = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(summaryData.saldoAtual);
 
-    // Update saldoAtual color based on value
     if (parseFloat(summaryData.saldoAtual) >= 0) {
         saldoAtualSpan.style.color = 'var(--success-color)';
     } else {
@@ -326,11 +326,11 @@ function updateSummary(summaryData) {
 }
 
 function updateChart(lancamentos) {
-    if (!ctx) return; // Ensure canvas context exists
+    if (!ctx) return;
 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    thirtyDaysAgo.setHours(0, 0, 0, 0); // Normalize to start of day
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
 
     const recentLancamentos = lancamentos.filter(l => {
         const lancamentoDate = new Date(l.data + 'T00:00:00');
@@ -349,9 +349,9 @@ function updateChart(lancamentos) {
     const labels = Object.keys(categoryData);
     const data = Object.values(categoryData);
     const backgroundColors = labels.map(label => {
-        if (label.includes('(R)')) return 'rgba(16, 185, 129, 0.6)'; // Green for income
-        if (label.includes('(D)')) return 'rgba(239, 68, 68, 0.6)'; // Red for expense
-        return 'rgba(79, 70, 229, 0.6)'; // Default primary color
+        if (label.includes('(R)')) return 'rgba(16, 185, 129, 0.6)';
+        if (label.includes('(D)')) return 'rgba(239, 68, 68, 0.6)';
+        return 'rgba(79, 70, 229, 0.6)';
     });
     const borderColors = labels.map(label => {
         if (label.includes('(R)')) return 'rgba(16, 185, 129, 1)';
@@ -360,7 +360,7 @@ function updateChart(lancamentos) {
     });
 
     if (lancamentosChart) {
-        lancamentosChart.destroy(); // Destroy existing chart before creating a new one
+        lancamentosChart.destroy();
     }
 
     lancamentosChart = new Chart(ctx, {
@@ -395,7 +395,7 @@ function updateChart(lancamentos) {
             },
             plugins: {
                 legend: {
-                    display: false // No need for legend as color indicates type
+                    display: false
                 },
                 tooltip: {
                     callbacks: {
@@ -447,7 +447,7 @@ async function generateReport(endpoint, fileType, filename) {
 }
 
 
-// --- Edit and Delete Functionality (for index.html) ---
+// --- Edit and Delete Functionality (for transactions.html) ---
 async function deleteLancamento(id) {
     try {
         const response = await fetch(`/api/lancamentos/${id}`, {
@@ -466,7 +466,7 @@ async function deleteLancamento(id) {
     }
 }
 
-// --- Modal for Edit ---
+// --- Modal for Edit (used on transactions.html) ---
 const modalOverlay = document.createElement('div');
 modalOverlay.className = 'modal-overlay';
 modalOverlay.innerHTML = `
@@ -651,17 +651,82 @@ confirmActionButton.addEventListener('click', () => {
 });
 
 
+// --- Authentication Page Listeners (for login.html and register.html) ---
+function setupAuthPageListeners() {
+    loginForm = document.getElementById('loginForm');
+    registerForm = document.getElementById('registerForm');
+    statusMessage = document.getElementById('statusMessage'); // Status for auth forms
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm.querySelector('#email').value.trim();
+            const password = loginForm.querySelector('#password').value.trim();
+
+            if (!email || !password) {
+                showStatusMessage("Por favor, preencha todos os campos.", "error");
+                return;
+            }
+            // TODO: Implement actual login API call here
+            showStatusMessage("Login em desenvolvimento...", "success");
+            console.log("Tentativa de Login:", { email, password });
+            // Simulate success and redirect
+            setTimeout(() => {
+                 window.location.href = 'transactions.html'; // Redirect to transactions page
+            }, 1000);
+        });
+    }
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = registerForm.querySelector('#email').value.trim();
+            const password = registerForm.querySelector('#password').value.trim();
+            const confirmPassword = registerForm.querySelector('#confirmPassword').value.trim();
+
+            if (!email || !password || !confirmPassword) {
+                showStatusMessage("Por favor, preencha todos os campos.", "error");
+                return;
+            }
+            if (password !== confirmPassword) {
+                showStatusMessage("As senhas não coincidem.", "error");
+                return;
+            }
+            if (password.length < 6) {
+                showStatusMessage("A senha deve ter pelo menos 6 caracteres.", "error");
+                return;
+            }
+
+            // TODO: Implement actual registration API call here
+            showStatusMessage("Registro em desenvolvimento...", "success");
+            console.log("Tentativa de Registro:", { email, password });
+            // Simulate success and redirect
+            setTimeout(() => {
+                window.location.href = 'login.html'; // Redirect to login page after registration
+            }, 1000);
+        });
+    }
+}
+
+
 // --- Initial Setup on Load ---
 window.onload = function() {
-    fetchConfigurations(); // Always fetch configurations for both pages
+    fetchConfigurations(); // Always fetch configurations for all relevant pages
 
     const currentPage = window.location.pathname;
 
     if (currentPage.includes('index.html') || currentPage === '/') {
-        console.log("[Main] Loading index.html specific scripts...");
-        setupIndexPageListeners();
+        console.log("[Main] Loading landing page scripts (no specific JS init needed for this page).");
+        // No specific JS setup needed for the landing page beyond nav links and general styles
+    } else if (currentPage.includes('login.html') || currentPage.includes('register.html')) {
+        console.log("[Main] Loading authentication page scripts...");
+        setupAuthPageListeners();
+    }
+    else if (currentPage.includes('transactions.html')) { // Renamed from index.html
+        console.log("[Main] Loading transactions page specific scripts...");
+        setupTransactionsPageListeners();
     } else if (currentPage.includes('dashboard.html')) {
         console.log("[Main] Loading dashboard.html specific scripts...");
-        setupDashboardPageListeners(); // Call setupDashboardPageListeners
+        setupDashboardPageListeners();
     }
 };
