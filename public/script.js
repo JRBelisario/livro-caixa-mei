@@ -1,4 +1,4 @@
-// script.js (Updated for Multi-Page Navigation and Authentication Frontend)
+// script.js (Updated for Multi-Page Navigation and REAL Authentication Frontend)
 
 // DOM Elements (conditionally selected based on page)
 let lancamentoForm, dataInput, descricaoInput, tipoLancamentoSelect, categoriaSelect, tipoPagamentoSelect, valorInput;
@@ -11,6 +11,7 @@ let generateCsvButton, generatePdfButton, reportStatusMessage;
 // Auth Page elements
 let loginForm, registerForm;
 let emailInput, passwordInput, confirmPasswordInput;
+let logoutButton; // New logout button
 
 // Global variables to store dynamic options fetched from backend
 let categoriasBackend = { receita: [], despesa: [] };
@@ -36,7 +37,9 @@ async function fetchConfigurations() {
     try {
         const response = await fetch('/api/configuracoes');
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // No need to throw error if not authenticated, as this route is public
+            console.warn("Could not fetch configurations. Server response:", response.status);
+            return { success: false, message: "Could not fetch configurations." };
         }
         const data = await response.json();
         if (data.success) {
@@ -48,18 +51,22 @@ async function fetchConfigurations() {
             if (tipoPagamentoSelect) {
                 populateSelect(tipoPagamentoSelect, tiposPagamentoBackend, 'Selecione um meio de pagamento...');
             }
-            if (editTipoPagamentoSelect) {
-                populateSelect(editTipoPagamentoSelect, tiposPagamentoBackend, 'Selecione um meio de pagamento...');
+            // Check for edit modal selects as well
+            if (document.getElementById('editTipoPagamento')) {
+                populateSelect(document.getElementById('editTipoPagamento'), tiposPagamentoBackend, 'Selecione um meio de pagamento...');
             }
+            return { success: true };
         } else {
             showStatusMessage("Erro ao carregar configurações: " + data.message, "error");
+            return { success: false, message: data.message };
         }
     } catch (error) {
         console.error("Erro ao buscar configurações:", error);
         // Only show status message if on a page where it's relevant (e.g., transactions page)
-        if (window.location.pathname.includes('transactions.html')) {
+        if (window.location.pathname.includes('transactions.html') || window.location.pathname.includes('dashboard.html')) {
             showStatusMessage("Erro ao carregar configurações. Verifique o servidor.", "error");
         }
+        return { success: false, message: "Erro de rede ao carregar configurações." };
     }
 }
 
@@ -75,6 +82,101 @@ function populateSelect(selectElement, options, defaultOptionLabel) {
     });
     selectElement.disabled = false;
 }
+
+// --- Authentication Logic ---
+
+// Function to check authentication status
+async function checkAuth() {
+    try {
+        const response = await fetch('/api/check-auth');
+        if (!response.ok) {
+            // This might happen if the session middleware isn't set up correctly or server error
+            console.error("Erro ao verificar autenticação:", response.status);
+            return { isAuthenticated: false };
+        }
+        const data = await response.json();
+        return data; // { isAuthenticated: true/false, userId: ... }
+    } catch (error) {
+        console.error("Erro de rede ao verificar autenticação:", error);
+        return { isAuthenticated: false };
+    }
+}
+
+// Function to handle page protection
+async function protectPage() {
+    const authStatus = await checkAuth();
+    const currentPage = window.location.pathname;
+
+    // Redirect if not authenticated and on a protected page
+    if (!authStatus.isAuthenticated && (currentPage.includes('transactions.html') || currentPage.includes('dashboard.html'))) {
+        window.location.href = 'login.html';
+        return false; // Indicate redirection happened
+    }
+    // Redirect if authenticated and on login/register page
+    if (authStatus.isAuthenticated && (currentPage.includes('login.html') || currentPage.includes('register.html'))) {
+        window.location.href = 'transactions.html'; // Redirect to transactions if already logged in
+        return false; // Indicate redirection happened
+    }
+
+    // Update navigation links based on auth status
+    updateNavLinks(authStatus.isAuthenticated);
+    return true; // Indicate no redirection, page can load content
+}
+
+function updateNavLinks(isAuthenticated) {
+    const loginLink = document.querySelector('a[href="login.html"]');
+    const registerLink = document.querySelector('a[href="register.html"]');
+    let logoutBtn = document.getElementById('logoutButton'); // Get the button if it exists
+
+    if (isAuthenticated) {
+        if (loginLink) loginLink.style.display = 'none';
+        if (registerLink) registerLink.style.display = 'none';
+        
+        // Create logout button if it doesn't exist and we are authenticated
+        if (!logoutBtn) {
+            const nav = document.querySelector('.landing-nav') || document.querySelector('header nav');
+            if (nav) {
+                logoutBtn = document.createElement('button');
+                logoutBtn.id = 'logoutButton';
+                logoutBtn.className = 'btn btn-secondary'; // Use secondary button style
+                logoutBtn.textContent = 'Sair';
+                nav.appendChild(logoutBtn);
+                logoutBtn.addEventListener('click', handleLogout);
+            }
+        } else {
+            logoutBtn.style.display = 'inline-block'; // Show if it already exists
+        }
+
+    } else {
+        if (loginLink) loginLink.style.display = 'inline-block';
+        if (registerLink) registerLink.style.display = 'inline-block';
+        if (logoutBtn) logoutBtn.style.display = 'none'; // Hide logout button
+    }
+}
+
+async function handleLogout() {
+    try {
+        const response = await fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        const result = await response.json();
+        if (result.success) {
+            showStatusMessage("Logout realizado com sucesso!", "success");
+            setTimeout(() => {
+                window.location.href = 'index.html'; // Redirect to landing page after logout
+            }, 1000);
+        } else {
+            showStatusMessage("Erro ao fazer logout: " + result.message, "error");
+        }
+    } catch (error) {
+        console.error("Erro de rede ao fazer logout:", error);
+        showStatusMessage("Erro de comunicação com o servidor ao fazer logout.", "error");
+    }
+}
+
 
 // --- Transactions Page Listeners (for transactions.html) ---
 function setupTransactionsPageListeners() {
@@ -120,6 +222,12 @@ function setupTransactionsPageListeners() {
                         valor: parseFloat(valor) // Ensure value is sent as a number
                     })
                 });
+
+                if (response.status === 401) { // Unauthorized
+                    showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error");
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                    return;
+                }
 
                 const result = await response.json();
                 if (result.success) {
@@ -169,6 +277,11 @@ async function fetchAndDisplayTransactions() {
 
     try {
         const response = await fetch('/api/lancamentos');
+        if (response.status === 401) { // Unauthorized
+            showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error");
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result = await response.json();
         const lancamentos = result.success ? result.data : [];
@@ -295,6 +408,11 @@ function setupDashboardPageListeners() {
 async function fetchAndDisplayDashboardData() {
     try {
         const summaryResponse = await fetch('/api/resumo-financeiro');
+        if (summaryResponse.status === 401) { // Unauthorized
+            showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error");
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
         if (!summaryResponse.ok) throw new Error(`HTTP error! status: ${summaryResponse.status}`);
         const summaryResult = await summaryResponse.json();
         if (summaryResult.success) {
@@ -304,6 +422,10 @@ async function fetchAndDisplayDashboardData() {
         }
 
         const chartDataResponse = await fetch('/api/dados-grafico');
+        if (chartDataResponse.status === 401) { // Unauthorized
+            // Already handled by summaryResponse, but good to have here too
+            return;
+        }
         if (!chartDataResponse.ok) throw new Error(`HTTP error! status: ${chartDataResponse.status}`);
         const chartData = await chartDataResponse.json();
         updateChart(chartData);
@@ -331,11 +453,6 @@ function updateChart(lancamentos) {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     thirtyDaysAgo.setHours(0, 0, 0, 0);
-
-    const recentLancamentos = lancamentos.filter(l => {
-        const lancamentoDate = new Date(l.data + 'T00:00:00');
-        return lancamentoDate >= thirtyDaysAgo;
-    });
 
     const categoryData = {};
     recentLancamentos.forEach(l => {
@@ -423,6 +540,12 @@ async function generateReport(endpoint, fileType, filename) {
     try {
         const response = await fetch(endpoint);
         
+        if (response.status === 401) { // Unauthorized
+            showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error", 'reportStatusMessage');
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
+
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`[Frontend Debug] Erro na resposta do servidor (${response.status}):`, errorText);
@@ -453,6 +576,11 @@ async function deleteLancamento(id) {
         const response = await fetch(`/api/lancamentos/${id}`, {
             method: 'DELETE'
         });
+        if (response.status === 401) { // Unauthorized
+            showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error");
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
         const result = await response.json();
         if (result.success) {
             showStatusMessage("Lançamento excluído com sucesso!", "success");
@@ -594,6 +722,11 @@ editLancamentoForm.addEventListener('submit', async (e) => {
                 valor: parseFloat(valor)
             })
         });
+        if (response.status === 401) { // Unauthorized
+            showStatusMessage("Sessão expirada. Por favor, faça login novamente.", "error");
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
         const result = await response.json();
         if (result.success) {
             showStatusMessage("Lançamento atualizado com sucesso!", "success");
@@ -667,13 +800,29 @@ function setupAuthPageListeners() {
                 showStatusMessage("Por favor, preencha todos os campos.", "error");
                 return;
             }
-            // TODO: Implement actual login API call here
-            showStatusMessage("Login em desenvolvimento...", "success");
-            console.log("Tentativa de Login:", { email, password });
-            // Simulate success and redirect
-            setTimeout(() => {
-                 window.location.href = 'transactions.html'; // Redirect to transactions page
-            }, 1000);
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showStatusMessage("Login bem-sucedido! Redirecionando...", "success");
+                    setTimeout(() => {
+                        window.location.href = 'transactions.html'; // Redirect to transactions page
+                    }, 1000);
+                } else {
+                    showStatusMessage("Erro no login: " + result.message, "error");
+                }
+            } catch (error) {
+                console.error("Erro de rede ao fazer login:", error);
+                showStatusMessage("Erro de comunicação com o servidor. Tente novamente.", "error");
+            }
         });
     }
 
@@ -692,41 +841,66 @@ function setupAuthPageListeners() {
                 showStatusMessage("As senhas não coincidem.", "error");
                 return;
             }
-            if (password.length < 6) {
+            if (password.length < 6) { // Basic password strength check
                 showStatusMessage("A senha deve ter pelo menos 6 caracteres.", "error");
                 return;
             }
 
-            // TODO: Implement actual registration API call here
-            showStatusMessage("Registro em desenvolvimento...", "success");
-            console.log("Tentativa de Registro:", { email, password });
-            // Simulate success and redirect
-            setTimeout(() => {
-                window.location.href = 'login.html'; // Redirect to login page after registration
-            }, 1000);
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    showStatusMessage("Registo bem-sucedido! Redirecionando para o login...", "success");
+                    setTimeout(() => {
+                        window.location.href = 'login.html'; // Redirect to login page after registration
+                    }, 1500);
+                } else {
+                    showStatusMessage("Erro no registo: " + result.message, "error");
+                }
+            } catch (error) {
+                console.error("Erro de rede ao registar:", error);
+                showStatusMessage("Erro de comunicação com o servidor. Tente novamente.", "error");
+            }
         });
     }
 }
 
 
 // --- Initial Setup on Load ---
-window.onload = function() {
-    fetchConfigurations(); // Always fetch configurations for all relevant pages
+window.onload = async function() {
+    // Check authentication status first for all pages
+    const pageCanLoad = await protectPage();
+    if (!pageCanLoad) {
+        // If protectPage redirected, stop further script execution for this load
+        return;
+    }
 
+    // Now load page-specific scripts if no redirection occurred
     const currentPage = window.location.pathname;
 
     if (currentPage.includes('index.html') || currentPage === '/') {
-        console.log("[Main] Loading landing page scripts (no specific JS init needed for this page).");
+        console.log("[Main] Loading landing page scripts.");
         // No specific JS setup needed for the landing page beyond nav links and general styles
+        // updateNavLinks is already called by protectPage
     } else if (currentPage.includes('login.html') || currentPage.includes('register.html')) {
         console.log("[Main] Loading authentication page scripts...");
         setupAuthPageListeners();
+        // updateNavLinks is already called by protectPage
     }
     else if (currentPage.includes('transactions.html')) { // Renamed from index.html
         console.log("[Main] Loading transactions page specific scripts...");
+        await fetchConfigurations(); // Ensure configs are loaded before setting up form
         setupTransactionsPageListeners();
     } else if (currentPage.includes('dashboard.html')) {
         console.log("[Main] Loading dashboard.html specific scripts...");
+        await fetchConfigurations(); // Ensure configs are loaded before setting up dashboard
         setupDashboardPageListeners();
     }
 };
